@@ -20,19 +20,16 @@ interface ChartCardProps {
 }
 
 export function ChartCard({ sales }: ChartCardProps) {
-  const data = sales?.reduce((acc, sale) => {
-    acc.push({
-      name: sale.month,
-      total: sale.amount,
-    });
-    return acc;
-  }, [] as { name: string; total: number }[]);
+  const data = sales?.map((sale) => ({
+    name: sale.month,
+    total: sale.amount,
+  }));
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Monthly Sales</CardTitle>
-        <CardDescription>Monthly sales for the selected brand</CardDescription>
+        <CardDescription>Monthly sales increase in 2024</CardDescription>
       </CardHeader>
       <CardContent className="h-96 p-4">
         {!sales ? (
@@ -52,7 +49,15 @@ export function ChartCard({ sales }: ChartCardProps) {
             >
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip />
+              <Tooltip
+                formatter={(value) =>
+                  value.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  })
+                }
+                labelFormatter={(value) => `Month: ${value}`}
+              />
               <Line type="monotone" dataKey="total" />
             </LineChart>
           </ResponsiveContainer>
