@@ -1,12 +1,7 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { ChartCard } from "@/components/chart-card";
+import { SalesTotalizer } from "@/components/sales-totalizer";
 import {
   Form,
   FormControl,
@@ -21,34 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Category } from "@/interfaces/category.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Legend, Line, LineChart, Tooltip } from "recharts";
-import { ResponsiveContainer, BarChart, XAxis, YAxis, Bar } from "recharts";
 import { z } from "zod";
-
-interface Category {
-  id: number;
-  name: string;
-  products: Product[];
-}
-
-interface Product {
-  id: number;
-  name: string;
-  brands: Brand[];
-}
-
-interface Brand {
-  id: number;
-  name: string;
-  sales: MonthSale[];
-}
-
-interface MonthSale {
-  month: string;
-  amount: number;
-}
 
 const categories: Category[] = [
   {
@@ -193,22 +164,6 @@ export default function Home() {
     (brand) => brand.id === selectedBrandId
   );
 
-  const totalSales =
-    selectedBrand?.sales.reduce((total, sale) => total + sale.amount, 0) || 0;
-
-  const data = selectedBrand?.sales.reduce((acc, sale) => {
-    acc.push({
-      name: sale.month,
-      total: sale.amount,
-    });
-    return acc;
-  }, [] as { name: string; total: number }[]);
-
-  console.log(
-    { selectedCategory, selectedProduct, selectedBrand },
-    { totalSales }
-  );
-
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="flex flex-col space-y-4">
@@ -306,48 +261,8 @@ export default function Home() {
             />
           </div>
         </Form>
-        <Card>
-          <CardHeader>
-            <CardTitle>Monthly Sales</CardTitle>
-            <CardDescription>
-              Monthly sales for the selected brand
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="h-96 p-4">
-            {!selectedBrand ? (
-              <p className="p-4 text-center text-slate-400">
-                Select a brand to view sales
-              </p>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={data}
-                  margin={{
-                    top: 10,
-                    right: 30,
-                    left: 20,
-                    bottom: 10,
-                  }}
-                >
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="total"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-        <span className="text-sm text-right text-slate-600 ">
-          Total Sales:{" "}
-          {totalSales.toLocaleString("en-US", {
-            style: "currency",
-            currency: "USD",
-          })}
-        </span>
+        <ChartCard sales={selectedBrand?.sales} />
+        <SalesTotalizer sales={selectedBrand?.sales} />
       </div>
     </main>
   );
